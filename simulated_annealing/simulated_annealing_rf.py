@@ -5,8 +5,7 @@ from .utils import sample_temperature, temperature_schedule, f
 
 
 def simulated_annealing_rf(
-    Q: np.ndarray,
-    num_t_values: int,
+    Q: np.ndarray, num_t_values: int, seed: int | None = None
 ) -> Tuple[np.ndarray, float]:
     """Rejection-free simulated annealing with parallelized update scheme.
 
@@ -17,7 +16,7 @@ def simulated_annealing_rf(
     Returns:
         Tuple[np.ndarray, float]: The best solutions and its energy.
     """
-    rng = np.random.Generator(np.random.PCG64())
+    rng = np.random.Generator(np.random.PCG64(seed=seed))
 
     # Number of bits
     n = Q.shape[0]
