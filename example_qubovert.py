@@ -38,5 +38,3 @@ if __name__ == "__main__":
     t2 = timer()
     energy = f(x, Q)
     print(f"Rejection-free:       {energy} ({t2 - t1:.4f}s)")
-
-    np.save("Q.npy", Q)
