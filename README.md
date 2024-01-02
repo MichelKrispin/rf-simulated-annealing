@@ -13,7 +13,7 @@ Procedure RFSimulatedAnnealing
     x = random initial state
     xb = x
     For i in 0:N
-        x = FindLocalNeighbour(f, x, T_i)
+        x = FindLocalNeighbour(f, x, T[i])
         If f(x) < f(xb)
             xb = x
         EndIf
