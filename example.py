@@ -7,15 +7,16 @@ from simulated_annealing import simulated_annealing_qrf, simulated_annealing_rf
 from simulated_annealing.utils import f
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create a problem as in
     # https://qubovert.readthedocs.io/en/latest/problems/np/numberpartitioning.html
     t1 = timer()
     N = 512
+    np.random.seed(15)
     S = np.random.randint(1, 100, size=(N,)).tolist()
     problem = qv.problems.NumberPartitioning(S)
     H = problem.to_qubo()
-    H[()] = 0 # Remove constant
+    H[()] = 0  # Remove constant
     Q = qv.utils.qubo_to_matrix(H)
     print(f"Formulation time for N = {N} is {timer() - t1:.4f}s")
 
@@ -37,3 +38,5 @@ if __name__ == '__main__':
     t2 = timer()
     energy = f(x, Q)
     print(f"Rejection-free:       {energy} ({t2 - t1:.4f}s)")
+
+    np.save("Q.npy", Q)
