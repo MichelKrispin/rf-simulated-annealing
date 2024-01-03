@@ -37,5 +37,5 @@ EndProcedure
 
 The MPI version makes use of [mpi4py](https://mpi4py.readthedocs.io/en/stable/index.html).
 So, after installing it with `pip install mpi4py` the parallel version can be run with `mpiexec -n 4 python mpi_simulated_annealing.py`.
-Currently, each process computes an individual solution, outputs the found energy and sends the corresponding x vector to the root process.
+Currently, each process computes an individual solution, prints the found energy and sends the corresponding x vector to the root process.
 The [file](./mpi_simulated_annealing.py) can be altered to make use of the best solution vector as well as changing the used QUBO problem.
