@@ -1,6 +1,7 @@
 # (Quasi) Rejection-Free Simulated Annealing
 
 Python implementations of quasi rejection-free and rejection-free simulated annealing to optimize [QUBO](https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization) problems.
+A [CUDA implementation](https://github.com/MichelKrispin/cuda-rf-simulated-annealing) exists as well.
 
 The only requirement for the algorithms is `numpy` while the example uses [qubovert](https://github.com/jtiosue/qubovert) for the QUBO formulation.
 
