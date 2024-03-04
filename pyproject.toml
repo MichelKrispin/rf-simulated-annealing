@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rf-simulated-annealing"
+version = "1.0.2"
+license = "MIT"
+authors = [
+  { name="Michel Krispin", email="michel.krispin@tuhh.de" },
+]
+description = "Python implementations of quasi rejection-free and rejection-free simulated annealing to optimize QUBO problems."
+requires-python = ">=3.7"
+readme = 'README.md'
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy~=1.26",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/MichelKrispin/rf-simulated-annealing"
+
+[tool.hatch.build.targets.wheel]
+packages = ["simulated_annealing"]
