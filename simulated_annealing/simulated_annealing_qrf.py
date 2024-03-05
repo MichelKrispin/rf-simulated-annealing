@@ -4,6 +4,21 @@ from typing import Tuple
 from .utils import sample_temperature, temperature_schedule, f
 
 
+def metropolis_hastings_criterion(deltaE: np.ndarray, t: float) -> np.ndarray:
+    """Metropolis-Hastings criterion with with inverse.
+
+    Args:
+        deltaE (np.ndarray): The energy difference.
+        t (float): The time schedule value.
+
+    Returns:
+        np.ndarray: The probability criterion array.
+    """
+    # Clamp the inverted delta values to remove overflow warning
+    criterion = np.minimum(0, -deltaE)
+    return np.minimum(1, np.exp(criterion * t))
+
+
 def simulated_annealing_qrf(
     Q: np.ndarray, num_t_values: int, seed: int | None = None
 ) -> Tuple[np.ndarray, float]:
@@ -25,7 +40,6 @@ def simulated_annealing_qrf(
     Q_diag = np.diag(Q)
     Q_full = Q + Q.T
     np.fill_diagonal(Q_full, Q_diag)
-    ones = np.ones((n))
 
     t0, t_end, offset_increase_rate = sample_temperature(Q, k=3)  # Sample randomly
 
@@ -33,11 +47,6 @@ def simulated_annealing_qrf(
     ts = temperature_schedule(
         t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
     )
-
-    # Criterion
-    A = lambda deltaE, t: np.minimum(
-        ones, np.exp(-deltaE * t)
-    )  # Metropolis Hastings / with inverse
 
     # Random initial x
     x = rng.integers(0, high=2, size=(n,))
@@ -59,7 +68,7 @@ def simulated_annealing_qrf(
         delta = 0.0
         while True:
             # Check for accepted elements
-            criteria = A(delta_E - delta, t)
+            criteria = metropolis_hastings_criterion(delta_E - delta, t)
             u_s = rng.uniform(0, 1, size=criteria.shape)
 
             # Then some acceptance probabilities
