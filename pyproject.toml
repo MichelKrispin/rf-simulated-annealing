@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rf-simulated-annealing"
-version = "1.0.2"
+version = "1.0.3"
 license = "MIT"
 authors = [
   { name="Michel Krispin", email="michel.krispin@tuhh.de" },
