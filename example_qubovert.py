@@ -3,8 +3,12 @@ import numpy as np
 
 from timeit import default_timer as timer
 
-from simulated_annealing import simulated_annealing_qrf, simulated_annealing_rf
-from simulated_annealing.utils import f
+from simulated_annealing_variants import (
+    simulated_annealing,
+    simulated_annealing_qrf,
+    simulated_annealing_rf,
+)
+from simulated_annealing_variants.utils import f
 
 
 if __name__ == "__main__":
@@ -26,6 +30,12 @@ if __name__ == "__main__":
     x = np.array([res.best.state[i] for i in range(N)])
     energy = f(x, Q)
     print(f"Qubovert annealing:   {energy} ({t2 - t1:.4f}s)")
+
+    t1 = timer()
+    x, _ = simulated_annealing(Q, 20000)
+    t2 = timer()
+    energy = f(x, Q)
+    print(f"Default annealing:    {energy} ({t2 - t1:.4f}s)")
 
     t1 = timer()
     x, _ = simulated_annealing_qrf(Q, 10000)

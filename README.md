@@ -2,6 +2,9 @@
 
 Python implementations of quasi rejection-free and rejection-free simulated annealing to optimize [QUBO](https://en.wikipedia.org/wiki/Quadratic_unconstrained_binary_optimization) problems.
 A [CUDA implementation](https://github.com/MichelKrispin/cuda-rf-simulated-annealing) exists as well.
+Additionally, the default simulated annealing algorithm is implemented as a reference.
+This reference implementation makes use of an improved update scheme where only the differences to the last energy state is computed.
+By using this scheme, the complexity is reduced to O(n \* t), where n is the number of bits in the problem and t is the number of time steps.
 
 ## Usage
 
@@ -10,7 +13,8 @@ The only requirement for the algorithms is `numpy` and they accept an upper tria
 The algorithm is simply invoked by
 
 ```python
-from simulated_annealing import simulated_annealing_qrf, simulated_annealing_rf
+from simulated_annealing_variants import simulated_annealing, simulated_annealing_qrf, simulated_annealing_rf
+x, energy = simulated_annealing(Q=Q, num_t_values=10000)
 x, energy = simulated_annealing_qrf(Q=Q, num_t_values=10000)
 x, energy = simulated_annealing_rf(Q=Q, num_t_values=10000)
 ```

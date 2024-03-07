@@ -1,5 +1,5 @@
 from mpi4py import MPI
-from simulated_annealing import simulated_annealing_rf
+from simulated_annealing_variants import simulated_annealing
 import numpy as np
 import time
 
@@ -17,7 +17,7 @@ num_iterations = 25000
 
 # Run the simulated annealing method in each instance
 local_seed = int(time.time() * 1000) % 10000
-x, best_energy = simulated_annealing_rf(Q, num_iterations, seed=local_seed)
+x, best_energy = simulated_annealing(Q, num_iterations, seed=local_seed)
 print(f"[{rank}]: {best_energy}")
 
 # Get the best result of all instances
