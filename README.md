@@ -8,7 +8,7 @@ By using this scheme, the complexity is reduced to O(n \* t), where n is the num
 
 ## Usage
 
-The package is available at [pypi](https://pypi.org/project/rf-simulated-annealing/), so it can be installed with `pip install rf-simulated-annealing`.
+The package is available at [pypi](https://pypi.org/project/simulated-annealing-variants/), so it can be installed with `pip install simulated-annealing-variants`.
 The only requirement for the algorithms is `numpy` and they accept an upper triangular matrix while the example uses [qubovert](https://github.com/jtiosue/qubovert) for the QUBO formulation.
 The algorithm is simply invoked by
 
