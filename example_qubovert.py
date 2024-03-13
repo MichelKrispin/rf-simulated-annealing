@@ -32,7 +32,7 @@ if __name__ == "__main__":
     print(f"Qubovert annealing:   {energy} ({t2 - t1:.4f}s)")
 
     t1 = timer()
-    x, _ = simulated_annealing(Q, 20000)
+    x, _ = simulated_annealing(Q, 10000)
     t2 = timer()
     energy = f(x, Q)
     print(f"Default annealing:    {energy} ({t2 - t1:.4f}s)")

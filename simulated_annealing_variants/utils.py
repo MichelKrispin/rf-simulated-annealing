@@ -62,6 +62,34 @@ def sample_temperature(
     return t_0, t_end, offset_increase_rate
 
 
+def sample_temperature_range(
+    Q: np.ndarray,
+    start_flip_prob: float = 0.5,
+    end_flip_prob: float = 0.01,
+    factor: float = 2.0,
+) -> Tuple[float, float]:
+    """Sample the temperature range for the annealing process.
+    Pretty much exactly from https://github.com/jtiosue/qubovert/blob/master/qubovert/sim/_anneal_temperature_range.py
+
+    Args:
+        Q (np.ndarray): The QUBO matrix.
+        start_flip_prob (float): Flip probability at the start.
+        end_flip_prob (float): Flip probability at the end.
+        factor (float): Factor for approximating the maximum/minimum energy difference.
+
+    Returns:
+        Tuple[float, float]: The start and end time as a tuple.
+    """
+    min_del_energy = factor * np.min(np.abs(Q)[np.nonzero(Q)])
+    Q_full = Q.T + Q
+    np.fill_diagonal(Q_full, np.diagonal(Q))
+    max_del_energy = factor * np.max(np.sum(np.abs(Q_full), axis=0))
+
+    t0 = -max_del_energy / np.log(start_flip_prob)
+    t_end = -min_del_energy / np.log(end_flip_prob)
+    return t0, t_end
+
+
 def temperature_schedule(
     t0: float, t_end: float, num_t_values: int, generate_inverse: bool = True
 ) -> np.ndarray:

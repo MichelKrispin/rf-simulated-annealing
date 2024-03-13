@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-from .utils import sample_temperature, temperature_schedule, f
+from .utils import temperature_schedule, sample_temperature_range, sample_temperature, f
 
 
 def simulated_annealing(
@@ -30,7 +30,8 @@ def simulated_annealing(
     x = rng.integers(0, high=2, size=(n,))
     f_x = f(x, Q)
 
-    t0, t_end, _ = sample_temperature(Q)  # Sample randomly
+    t0, t_end = sample_temperature_range(Q)  # Sample randomly
+    # t0, t_end, _ = sample_temperature(Q)  # Sample randomly
 
     # Create the inverted temperature values
     ts = temperature_schedule(
