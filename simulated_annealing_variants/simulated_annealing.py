@@ -31,14 +31,13 @@ def simulated_annealing(
     f_x = f(x, Q)
 
     t0, t_end = sample_temperature_range(Q)  # Sample randomly
-    # t0, t_end, _ = sample_temperature(Q)  # Sample randomly
 
     # Create the inverted temperature values
-    ts = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=False
+    betas = temperature_schedule(
+        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
     )
 
-    for t in ts:
+    for beta in betas:
         # Random flip in x
         idx = np.random.randint(n)
         idx = rng.integers(0, high=n)
@@ -49,7 +48,7 @@ def simulated_annealing(
         f_y = f_x + f_difference
 
         # Accept the new one if better (t is inverted beforehand)
-        if f_y <= f_x or (np.exp(-(f_y - f_x) * t) > rng.uniform(0, 1)):
+        if f_y <= f_x or (np.exp(-(f_y - f_x) * beta) > rng.uniform(0, 1)):
             x[idx] = 1 - x[idx]
             f_x = f_y
 
@@ -78,7 +77,7 @@ def simulated_annealing_slow(
 
     # Create the inverted temperature values
     ts = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=False
+        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
     )
 
     # Random initial x
