@@ -39,7 +39,6 @@ def simulated_annealing(
 
     for beta in betas:
         # Random flip in x
-        idx = np.random.randint(n)
         idx = rng.integers(0, high=n)
 
         # Compute the difference between the flip and the previous energy
