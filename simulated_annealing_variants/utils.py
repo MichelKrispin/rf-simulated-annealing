@@ -17,7 +17,6 @@ def expectation_delta_x(Q: np.ndarray, m: int):
     Q_full = Q + Q.T
     np.fill_diagonal(Q_full, Q_diag)
 
-    np.random.seed(7)
     flips = np.random.randint(0, N, (m,))
     x = np.random.randint(0, 2, (N,))
     h = np.sum(Q_full * x, axis=1) + (1 - x) * Q_diag
