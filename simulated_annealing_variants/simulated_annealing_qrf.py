@@ -1,7 +1,12 @@
 import numpy as np
 from typing import Tuple
 
-from .utils import sample_temperature, temperature_schedule, f
+from .utils import f
+from .temperature import (
+    temperature_schedule,
+    expectation_delta_x,
+    TEMPERATURE_SAMPLING_MODE,
+)
 
 
 def metropolis_hastings_criterion(deltaE: np.ndarray, t: float) -> np.ndarray:
@@ -20,13 +25,18 @@ def metropolis_hastings_criterion(deltaE: np.ndarray, t: float) -> np.ndarray:
 
 
 def simulated_annealing_qrf(
-    Q: np.ndarray, num_t_values: int, seed: int | None = None
+    Q: np.ndarray,
+    num_t_values: int | None = None,
+    temperature_sampling_mode: TEMPERATURE_SAMPLING_MODE = TEMPERATURE_SAMPLING_MODE.deterministic,
+    seed: int | None = None,
 ) -> Tuple[np.ndarray, float]:
     """Quasi rejection-free simulated annealing with parallelized update scheme.
 
     Args:
         Q (np.ndarray): The QUBO matrix.
-        num_t_values (int): Number of update steps.
+        num_t_values (int | None, optional): Number of update steps. Defaults to the size of the QUBO squared.
+        temperature_sampling_mode (TEMPERATURE_SAMPLING_TYPE): The way of sampling the temperature start and end values. Defaults to deterministic.
+        seed (int | None, optional): Random seed. Defaults to None.
 
     Returns:
         Tuple[np.ndarray, float]: The best solutions and its energy.
@@ -41,12 +51,18 @@ def simulated_annealing_qrf(
     Q_full = Q + Q.T
     np.fill_diagonal(Q_full, Q_diag)
 
-    t0, t_end, offset_increase_rate = sample_temperature(Q, k=3)  # Sample randomly
+    if num_t_values is None:
+        num_t_values = n**2
 
     # Create the inverted temperature values
-    ts = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
+    betas = temperature_schedule(
+        Q,
+        num_t_values=num_t_values,
+        temperature_sampling_mode=temperature_sampling_mode,
+        generate_inverse=True,
     )
+
+    offset_increase_rate = expectation_delta_x(Q, 8) / 3
 
     # Random initial x
     x = rng.integers(0, high=2, size=(n,))
@@ -62,13 +78,13 @@ def simulated_annealing_qrf(
     # Initial flip
     h = np.sum(Q_full * x, axis=1) + (1 - x) * Q_diag
 
-    for t in ts:
+    for beta in betas:
         # Compute the differene for all flipped x at once
         delta_E = -(1 - 2 * (1 - x)) * h
         delta = 0.0
         while True:
             # Check for accepted elements
-            criteria = metropolis_hastings_criterion(delta_E - delta, t)
+            criteria = metropolis_hastings_criterion(delta_E - delta, beta)
             u_s = rng.uniform(0, 1, size=criteria.shape)
 
             # Then some acceptance probabilities

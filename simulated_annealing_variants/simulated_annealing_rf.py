@@ -1,17 +1,24 @@
 import numpy as np
 from typing import Tuple
 
-from .utils import sample_temperature, temperature_schedule, f
+from .utils import f
+from .temperature import temperature_schedule, TEMPERATURE_SAMPLING_MODE
 
 
 def simulated_annealing_rf(
-    Q: np.ndarray, num_t_values: int, seed: int | None = None
+    Q: np.ndarray,
+    num_t_values: int | None = None,
+    temperature_sampling_mode: TEMPERATURE_SAMPLING_MODE = TEMPERATURE_SAMPLING_MODE.deterministic,
+    seed: int | None = None,
 ) -> Tuple[np.ndarray, float]:
     """Rejection-free simulated annealing with parallelized update scheme.
 
     Args:
         Q (np.ndarray): The QUBO matrix.
-        num_t_values (int): Number of update steps.
+        num_t_values (int | None, optional): Number of update steps. Defaults to the size of the QUBO squared.
+        temperature_sampling_mode (TEMPERATURE_SAMPLING_TYPE): The way of sampling the temperature start and end values. Defaults to deterministic.
+        seed (int | None, optional): Random seed. Defaults to None.
+
 
     Returns:
         Tuple[np.ndarray, float]: The best solutions and its energy.
@@ -26,11 +33,15 @@ def simulated_annealing_rf(
     Q_full = Q + Q.T
     np.fill_diagonal(Q_full, Q_diag)
 
-    t0, t_end, _ = sample_temperature(Q)  # Sample randomly
+    if num_t_values is None:
+        num_t_values = n**2
 
-    # Create the inverted temperature values
+    # Sample the inverse temperature schedule
     ts = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=False
+        Q,
+        num_t_values=num_t_values,
+        temperature_sampling_mode=temperature_sampling_mode,
+        generate_inverse=False,
     )
 
     # Random initial x

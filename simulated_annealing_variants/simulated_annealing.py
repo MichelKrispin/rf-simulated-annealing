@@ -1,11 +1,15 @@
 import numpy as np
 from typing import Tuple
 
-from .utils import temperature_schedule, sample_temperature_range, sample_temperature, f
+from .utils import f
+from .temperature import temperature_schedule, TEMPERATURE_SAMPLING_MODE
 
 
 def simulated_annealing(
-    Q: np.ndarray, num_t_values: int, seed: int | None = None
+    Q: np.ndarray,
+    num_t_values: int | None = None,
+    temperature_sampling_mode: TEMPERATURE_SAMPLING_MODE = TEMPERATURE_SAMPLING_MODE.deterministic,
+    seed: int | None = None,
 ) -> Tuple[np.ndarray, float]:
     """Simulated annealing with a computational complexity of O(n * t),
     where t is the number of timesteps.
@@ -14,7 +18,10 @@ def simulated_annealing(
 
     Args:
         Q (np.ndarray): The QUBO matrix.
-        num_t_values (int): Number of update steps.
+        num_t_values (int | None, optional): Number of update steps. Defaults to the size of the QUBO squared.
+        temperature_sampling_mode (TEMPERATURE_SAMPLING_TYPE): The way of sampling the temperature start and end values. Defaults to deterministic.
+        seed (int | None, optional): Random seed. Defaults to None.
+
 
     Returns:
         Tuple[np.ndarray, float]: The best solutions and its energy.
@@ -26,15 +33,19 @@ def simulated_annealing(
     Q_outer = Q + Q.T
     np.fill_diagonal(Q_outer, 0)
 
+    if num_t_values is None:
+        num_t_values = n**2
+
     # Random initial
     x = rng.integers(0, high=2, size=(n,))
     f_x = f(x, Q)
 
-    t0, t_end = sample_temperature_range(Q)  # Sample randomly
-
     # Create the inverted temperature values
     betas = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
+        Q,
+        num_t_values=num_t_values,
+        temperature_sampling_mode=temperature_sampling_mode,
+        generate_inverse=True,
     )
 
     for beta in betas:
@@ -55,7 +66,7 @@ def simulated_annealing(
 
 
 def simulated_annealing_slow(
-    Q: np.ndarray, num_t_values: int, seed: int | None = None
+    Q: np.ndarray, num_t_values: int | None = None, seed: int | None = None
 ) -> Tuple[np.ndarray, float]:
     """Classical simulated annealing with a computational complexity of O(n^2 * t),
     where t is the number of timesteps.
@@ -64,7 +75,8 @@ def simulated_annealing_slow(
 
     Args:
         Q (np.ndarray): The QUBO matrix.
-        num_t_values (int): Number of update steps.
+        num_t_values (int | None, optional): Number of update steps. Defaults to the size of the QUBO squared.
+        seed (int | None, optional): Random seed. Defaults to None.
 
     Returns:
         Tuple[np.ndarray, float]: The best solutions and its energy.
@@ -72,18 +84,17 @@ def simulated_annealing_slow(
     rng = np.random.Generator(np.random.PCG64(seed=seed))
     n = Q.shape[0]
 
-    t0, t_end, _ = sample_temperature(Q)  # Sample randomly
+    if num_t_values is None:
+        num_t_values = n**2
 
-    # Create the inverted temperature values
-    ts = temperature_schedule(
-        t0=t0, t_end=t_end, num_t_values=num_t_values, generate_inverse=True
-    )
+    # Create the beta schedule.
+    betas = temperature_schedule(Q, num_t_values=num_t_values, generate_inverse=True)
 
     # Random initial x
     x = rng.integers(0, high=2, size=(n,))
     f_x = f(x, Q)
 
-    for t in ts:
+    for beta in betas:
         # Random flip in x
         idx = np.random.randint(n)
         x[idx] = 1 - x[idx]
@@ -92,7 +103,7 @@ def simulated_annealing_slow(
         f_y = f(x, Q)
 
         # Accept the new one if better
-        if f_y <= f_x or (np.exp(-(f_y - f_x) * t) > np.random.uniform()):
+        if f_y <= f_x or (np.exp(-(f_y - f_x) * beta) > np.random.uniform()):
             f_x = f_y
         else:
             # Otherwise flip back
